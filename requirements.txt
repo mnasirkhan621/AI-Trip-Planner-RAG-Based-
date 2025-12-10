@@ -1,0 +1,21 @@
+# Core Framework
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0
+gunicorn>=21.0.0
+
+# LangChain & AI
+langchain>=0.1.0
+langchain-community>=0.0.10
+langchain-google-genai>=1.0.0
+langchain-chroma>=0.1.0
+
+# Vector Database
+chromadb>=0.4.0
+
+# Data
+datasets>=2.14.0
+
+# Utilities
+python-dotenv>=1.0.0
+pydantic>=2.0.0
+tiktoken>=0.5.0
