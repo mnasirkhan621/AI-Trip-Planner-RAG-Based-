@@ -1,0 +1,20 @@
+# SAM CLI Configuration
+# Run: sam deploy --guided (first time)
+# Run: sam deploy (subsequent deploys)
+
+version = 0.1
+
+[default.deploy.parameters]
+stack_name = "ai-trip-planner"
+resolve_s3 = true
+s3_prefix = "ai-trip-planner"
+region = "us-east-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+image_repositories = ["AiTripPlannerFunction=<account-id>.dkr.ecr.us-east-1.amazonaws.com/ai-trip-planner"]
+
+[default.build.parameters]
+use_container = true
+
+[default.local_start_api.parameters]
+warm_containers = "EAGER"

@@ -1,0 +1,72 @@
+# AWS SAM Template for AI Trip Planner Lambda Deployment
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: AI Trip Planner - Serverless FastAPI Application
+
+Globals:
+  Function:
+    Timeout: 120
+    MemorySize: 2048
+    Runtime: python3.11
+    Architectures:
+      - x86_64
+    Environment:
+      Variables:
+        PYTHONUNBUFFERED: "1"
+
+Parameters:
+  GoogleApiKey:
+    Type: String
+    Description: Google Gemini API Key
+    NoEcho: true
+
+Resources:
+  # Lambda Function
+  AiTripPlannerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: ai-trip-planner
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/ai-trip-planner:latest"
+      Environment:
+        Variables:
+          GOOGLE_API_KEY: !Ref GoogleApiKey
+      Events:
+        RootPath:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /
+            Method: ANY
+        ProxyPath:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /{proxy+}
+            Method: ANY
+      Policies:
+        - AWSLambdaBasicExecutionRole
+    Metadata:
+      DockerTag: latest
+      DockerContext: .
+      Dockerfile: Dockerfile.lambda
+
+  # API Gateway
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: ai-trip-planner-api
+      StageName: prod
+      Cors:
+        AllowMethods: "'GET,POST,OPTIONS'"
+        AllowHeaders: "'Content-Type,Authorization'"
+        AllowOrigin: "'*'"
+
+Outputs:
+  ApiEndpoint:
+    Description: API Gateway endpoint URL
+    Value: !Sub "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/prod/"
+  
+  FunctionArn:
+    Description: Lambda Function ARN
+    Value: !GetAtt AiTripPlannerFunction.Arn
